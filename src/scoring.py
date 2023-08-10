@@ -9,28 +9,34 @@ from .utils import normalize_weights
 
 def sentence_content_score(sents_emb):
     """
-    Computes content scores for sentences by computing cosine similarity with the centroid.
+    Computes the content scores for sentences based on cosine similarity with the centroid.
 
     Args:
-    sents_emb: tensor, sentence embeddings
+    - sents_emb (tensor): 
+        Embeddings for sentences.
 
     Returns:
-    tensor, content scores
+    - tensor: 
+        Content scores for each sentence.
     """
     centroid = sents_emb.mean(dim=0)
     return cos(sents_emb, centroid, dim=1)
 
 def sentence_novelty_score(sents_emb, content_scores, tau):
     """
-    Computes novelty scores for sentences based on their similarity with other sentences.
+    Computes the novelty scores for sentences by comparing their similarity with other sentences.
 
     Args:
-    sents_emb: tensor, sentence embeddings
-    content_scores: tensor, content scores
-    tau: float, threshold for novelty score computation
+    - sents_emb (tensor): 
+        Sentence embeddings.
+    - content_scores (tensor): 
+        Previously computed content scores for the sentences.
+    - tau (float): 
+        Threshold for novelty score computation.
 
     Returns:
-    novelty_scores: np.ndarray, novelty scores
+    - tensor: 
+        Novelty scores for each sentence.
     """
     # Compute similarity matrix
     sim = cos(sents_emb[:,:,None], sents_emb.t()[None,:,:], dim=1) # pairwise cosine similarity
@@ -53,33 +59,42 @@ def sentence_novelty_score(sents_emb, content_scores, tau):
 
 def sentence_position_score(sents_emb):
     """
-    Computes position scores for sentences based on their position in the text.
+    Calculates position scores for sentences based on their order in the text.
 
     Args:
-    sents_emb: tensor, sentence embeddings
+    - sents_emb (tensor): 
+        Sentence embeddings.
 
     Returns:
-    scores: tensor, position scores
+    - tensor: 
+        Position scores for each sentence.
     """
     M = sents_emb.shape[0]
     sentence_positions = torch.tensor([i for i in range(M)])
     scores = torch.max(torch.tensor(0.5), torch.exp(-sentence_positions / (3 * torch.sqrt(torch.tensor(M, dtype=torch.float)))))
     return scores
 
-def sentence_scores(sents_emb, tau=0.5, alpha=1, beta=1, gamma=1, normalize_weights_fn=normalize_weights):
+def sentence_scores(sents_emb, tau=0.95, alpha=0.6, beta=0.2, gamma=0.2, normalize_weights_fn=normalize_weights):
     """
-    Computes overall scores for sentences based on content, novelty, and position scores.
+    Computes the overall scores for sentences considering content, novelty, and position.
 
     Args:
-    sents_emb: tensor, sentence embeddings
-    tau: float, threshold for novelty score computation
-    alpha: float, weight for content score
-    beta: float, weight for novelty score
-    gamma: float, weight for position score
-    normalize_weights_fn: function, normalization function
+    - sents_emb (tensor): 
+        Sentence embeddings.
+    - tau (float, optional): 
+        Threshold for novelty score computation. Default is 0.5.
+    - alpha (float, optional): 
+        Weight for content score. Default is 1.
+    - beta (float, optional): 
+        Weight for novelty score. Default is 1.
+    - gamma (float, optional): 
+        Weight for position score. Default is 1.
+    - normalize_weights_fn (function, optional): 
+        Function to normalize the weights. Default is normalize_weights.
 
     Returns:
-    scores: tensor, overall scores
+    - tensor: 
+        Overall scores for each sentence.
     """
     # Get scores for each evalutaion
     content_scores = sentence_content_score(sents_emb)

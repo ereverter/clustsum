@@ -5,26 +5,36 @@ clustsum.py
 
 import spacy
 from transformers import AutoTokenizer, AutoModel
-from .embeddings import get_embeddings, get_compression_distance, get_batched_embeddings
+from .embeddings import get_embeddings, get_compression_distance, forward_fn_cls
 from .utils import text_to_sentences
 from .scoring import sentence_scores
 from .config import Configuration
 
-def clustsum(texts, method='transformer', config=None, nlp=None, tokenizer=None, model=None, forward_fn=None, return_scores=False):
+def clustsum(texts, method='transformer', config=None, nlp=None, tokenizer=None, model=None, forward_fn=forward_fn_cls, return_scores=False):
     """
-    Main function to apply unsupervised extractive summarization.
+    Summarize input texts using an unsupervised extractive approach.
 
     Args:
-    text: str, input text
-    method: str, method to use for summarization, either 'transformer' or 'compression'
-    nlp: spacy Language, language model for tokenization
-    tokenizer: transformer tokenizer, tokenizer for the transformer model
-    model: transformer model, transformer model for sentence embedding
-    forward_fn: function, function to get embeddings from the transformer model
+    - texts (List[str]): 
+        Input texts for summarization.
+    - method (str, optional): 
+        Embedding technique. Options are 'transformer' or 'compression'. Default is 'transformer'.
+    - config (Configuration, optional): 
+        Configuration object containing necessary parameters.
+    - nlp (spacy Language, optional): 
+        Language model for sentence tokenization.
+    - tokenizer (transformer tokenizer, optional): 
+        Tokenizer for the transformer model.
+    - model (transformer model, optional): 
+        Transformer model used for sentence embeddings.
+    - forward_fn (function, optional): 
+        Function to obtain embeddings from the transformer model.
+    - return_scores (bool, optional): 
+        Whether to return sentence scores. Default is False.
 
     Returns:
-    sents: list of str, tokenized sentences
-    sents_scores: tensor, scores for sentences
+    - List[str]: If return_scores is False, returns summarized sentences.
+    - Tuple[List[str], tensor]: If return_scores is True, returns tokenized sentences and their scores.
     """
     # Load everything that is needed
     if config is None:
@@ -46,7 +56,6 @@ def clustsum(texts, method='transformer', config=None, nlp=None, tokenizer=None,
         all_sents_emb = get_embeddings(all_sents, tokenizer, model, forward_fn, config)
     elif method == 'compression':
         all_sents_emb = get_compression_distance(all_sents)
-        # raise Exception("Compression-based embeddings are not supported for batched processing.")
     
     # Compute the scores
     sents_scores = [sentence_scores(sents_emb, config.tau, config.alpha, config.beta, config.gamma) for sents_emb in all_sents_emb]
