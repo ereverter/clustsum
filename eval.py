@@ -4,13 +4,14 @@ evaluate.py
 """
 
 import argparse
-import time
 import os
 from datasets import load_dataset
 from datasets.utils.logging import disable_progress_bar
 import evaluate
 from src.clustsum import clustsum
 from src.embeddings import forward_fn_pooler, forward_fn_cls
+import time
+import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModel
 
@@ -65,6 +66,8 @@ def process_batched(texts, method, args, tokenizer=None, model=None, forward_fn=
 if __name__ == '__main__':
     # Fetch the arguments
     args = fetch_args()  # Configuration
+    if args.device == 'cuda':
+        args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load the dataset
     print(f"Loading the {args.dataset} dataset...")
