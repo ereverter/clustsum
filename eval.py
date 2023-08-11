@@ -57,10 +57,20 @@ def process_batched(texts, method, args, tokenizer=None, model=None, forward_fn=
     Process the previously batched texts.
     """
     summaries = []
-    for batch in tqdm(texts, desc="Processing batches"):
-        sents_list = clustsum(batch, method, args, tokenizer=tokenizer, model=model, forward_fn=forward_fn, return_scores=return_scores)
-        for sents in sents_list:
-            summaries.append('. '.join(sents[:args.sum_size]))
+    for idx, batch in enumerate(tqdm(texts, desc="Processing batches")):
+        try:
+            sents_list = clustsum(batch, method, args, tokenizer=tokenizer, model=model, forward_fn=forward_fn, return_scores=return_scores)
+            for sents in sents_list:
+                summaries.append('. '.join(sents[:args.sum_size]))
+        except RuntimeError as e:
+            if 'CUDA out of memory' in str(e):
+                print(f"CUDA out of memory on batch {idx}. Using fallback.")
+                for text in batch:
+                    sents = text.split('. ')  # Assuming sentences are split by '. '
+                    summaries.append('. '.join(sents[:args.sum_size]))
+                continue
+            else:
+                raise e
     return summaries
 
 if __name__ == '__main__':

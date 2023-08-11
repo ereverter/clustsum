@@ -48,8 +48,10 @@ def clustsum(texts, method='transformer', config=None, nlp=None, tokenizer=None,
     if forward_fn is None and method == 'transformer':
         raise Exception("Please provide the forward function to obtain the embedding.")
 
+    print('o')
     # Preprocess each text into sentences
     all_sents = [text_to_sentences(text, nlp) for text in texts]
+    print(all_sents)
 
     # Get the embeddings for all samples
     if method == 'transformer':
