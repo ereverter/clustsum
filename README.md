@@ -19,6 +19,8 @@ Sentences are tokenized and then passed through the transformer model. These tok
 
 Compression-based embeddings are derived using the `gzip` compression algorithm. The distance between two sentences is ascertained by compressing the combined sentence and contrasting it with individual compressions. This method offers a similarity measure between sentences. It's an adaptation of the approach presented in [Jiang et al. (2023)](https://aclanthology.org/2023.findings-acl.426/), modified for extractive summarization.
 
+The approach can be parallelized in two distinct ways to leverage multiple cores. Firstly, by parallelizing the sentences within a single sample, and secondly, by directly parallelizing the samples themselves. The latter method is employed based on the number of available cores. The decision to use the latter method is influenced by the fact that the average number of sentences per sample is significantly smaller than the total number of samples.
+
 ### Scoring System
 
 #### 1. Sentence Content Relevance Score
