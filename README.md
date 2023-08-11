@@ -25,8 +25,8 @@ Compression-based embeddings are derived using the `gzip` compression algorithm.
 
 The content relevance score for a sentence \( S_i \) in cluster \( D \) is determined using the cosine similarity between the sentence embedding vector \( \vec{S_{D_i}} \) and the centroid embedding vector \( \vec{C_D} \):
 
-```
-$$ \text{score}_{\text{contentRelevance}}(S_i, D) = \frac{\vec{S_{D_i}} \cdot \vec{C_D}}{||\vec{S_{D_i}}|| \cdot ||\vec{C_D}||} $$
+```math
+\text{score}_{\text{contentRelevance}}(S_i, D) = \frac{\vec{S_{D_i}} \cdot \vec{C_D}}{||\vec{S_{D_i}}|| \cdot ||\vec{C_D}||}
 ```
 Where:
 - \( \vec{S_{D_i}} \) represents the embedding vector of sentence \( S_i \).
