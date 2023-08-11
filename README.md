@@ -19,61 +19,65 @@ Sentences are tokenized and then passed through the transformer model. These tok
 
 Compression-based embeddings are derived using the `gzip` compression algorithm. The distance between two sentences is ascertained by compressing the combined sentence and contrasting it with individual compressions. This method offers a similarity measure between sentences. It's an adaptation of the approach presented in [Jiang et al. (2023)](https://aclanthology.org/2023.findings-acl.426/), modified for extractive summarization.
 
-## Scoring System
+### Scoring System
 
-### 1. Sentence Content Relevance Score
+#### 1. Sentence Content Relevance Score
 
-The content relevance score for a sentence \( S_i \) in cluster \( D \) is determined using the cosine similarity between the sentence embedding vector \( \vec{S_{D_i}} \) and the centroid embedding vector \( \vec{C_D} \):
+The content relevance score for a sentence $ S_i $ in cluster $ D $ is determined using the cosine similarity between the sentence embedding vector $ \vec{S_{D_i}} $ and the centroid embedding vector $ \vec{C_D} $:
 
-```math
+$$
 \text{score}_{\text{contentRelevance}}(S_i, D) = \frac{\vec{S_{D_i}} \cdot \vec{C_D}}{||\vec{S_{D_i}}|| \cdot ||\vec{C_D}||}
-```
+$$
+
 Where:
-- \( \vec{S_{D_i}} \) represents the embedding vector of sentence \( S_i \).
-- \( \vec{C_D} \) denotes the centroid embedding vector of cluster \( D \).
+- $ \vec{S_{D_i}} $ represents the embedding vector of sentence $ S_i $.
+- $ \vec{C_D} $ denotes the centroid embedding vector of cluster $ D $.
 
-### 2. Sentence Novelty Score
+#### 2. Sentence Novelty Score
 
-The novelty score for a sentence \( S_i \) in cluster \( D \) is computed as:
+The novelty score for a sentence $ S_i $ in cluster $ D $ is computed as:
 
-```
-$$ 
+$$
 \text{score}_{\text{novelty}}(S_i, D) = 
 \begin{cases} 
 1 & \text{if } \max(\text{sim}(S_i, S_k)) < \tau \\
 1 & \text{if } \max(\text{sim}(S_i, S_k)) > \tau \text{ and } \text{score}_{\text{contentRelevance}}(S_i, D) > \text{score}_{\text{contentRelevance}}(S_l, D) \\
 1 - \max(\text{sim}(S_i, S_k)) & \text{otherwise}
-\end{cases} 
+\end{cases}
 $$
-```
 
 Where:
-- \( \text{sim}(S_i, S_k) \) indicates the similarity between sentence \( S_i \) and other sentences in cluster \( D \).
-- \( l \) is the index of the sentence most similar to \( S_i \) in cluster \( D \).
+- $ \text{sim}(S_i, S_k) $ indicates the similarity between sentence $ S_i $ and other sentences in cluster $ D $, calculated as:
 
-### 3. Sentence Position Score
+$$
+\text{sim}(S_i, S_k) = \frac{\vec{S_{D_i}} \cdot \vec{S_{D_k}}}{||\vec{S_{D_i}}|| \cdot ||\vec{S_{D_k}}||}
+$$
 
-The position score for a sentence \( S_{d_i} \) in a document \( d \) is:
+- $ l $ is the index of the sentence most similar to $ S_i $ in cluster $ D $.
 
-```
-$$ \text{score}_{\text{position}}(S_{d_i}) = \max\left(0.5, \exp\left(\frac{-p(S_{d_i})}{3\sqrt{M_d}}\right)\right) $$
-```
+#### 3. Sentence Position Score
+
+The position score for a sentence $ S_{d_i} $ in a document $ d $ is:
+
+$$
+\text{score}_{\text{position}}(S_{d_i}) = \max\left(0.5, \exp\left(\frac{-p(S_{d_i})}{3\sqrt{M_d}}\right)\right)
+$$
 
 Where:
-- \( p(S_{d_i}) \) is the position of sentence \( S \) in document \( d \), starting from 1.
-- \( M_d \) is the total number of sentences in document \( d \).
+- $ p(S_{d_i}) $ is the position of sentence $ S $ in document $ d $, starting from 1.
+- $ M_d $ is the total number of sentences in document $ d $.
 
-The final score for a sentence \( S_i \) is the sum of the three scores:
+The final score for a sentence $ S_i $ is the sum of the three scores:
 
-```
-$$ \text{score}(S_i, D) = \alpha \cdot \text{score}_{\text{contentRelevance}}(S_i, D) + \beta \cdot \text{score}_{\text{novelty}}(S_i, D) + \gamma \cdot \text{score}_{\text{position}}(S_i) $$
-```
+$$
+\text{score}(S_i, D) = \alpha \cdot \text{score}_{\text{contentRelevance}}(S_i, D) + \beta \cdot \text{score}_{\text{novelty}}(S_i, D) + \gamma \cdot \text{score}_{\text{position}}(S_i)
+$$
 
 Subject to:
+$$
+\alpha + \beta + \gamma = 1
+$$
 
-```
-$$ \alpha + \beta + \gamma = 1 $$
-```
 
 ## Results
 
