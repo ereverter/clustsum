@@ -23,65 +23,65 @@ Compression-based embeddings are derived using the `gzip` compression algorithm.
 
 #### 1. Sentence Content Relevance Score
 
-The content relevance score for a sentence $ S_i $ in cluster $ D $ is determined using the cosine similarity between the sentence embedding vector $ \vec{S_{D_i}} $ and the centroid embedding vector $ \vec{C_D} $:
+The content relevance score for a sentence $S_i$ in cluster $D$ is determined using the cosine similarity between the sentence embedding vector $\vec{S_{D_i}}$ and the centroid embedding vector $\vec{C_D}$:
 
-$$
+```math
 \text{score}_{\text{contentRelevance}}(S_i, D) = \frac{\vec{S_{D_i}} \cdot \vec{C_D}}{||\vec{S_{D_i}}|| \cdot ||\vec{C_D}||}
-$$
+```
 
 Where:
-- $ \vec{S_{D_i}} $ represents the embedding vector of sentence $ S_i $.
-- $ \vec{C_D} $ denotes the centroid embedding vector of cluster $ D $.
+- $\vec{S_{D_i}}$ represents the embedding vector of sentence $S_i$.
+- $\vec{C_D}$ denotes the centroid embedding vector of cluster  $D$.
 
 #### 2. Sentence Novelty Score
 
-The novelty score for a sentence $ S_i $ in cluster $ D $ is computed as:
+The novelty score for a sentence $S_i$ in cluster $D$ is computed as:
 
-$$
+```math
 \text{score}_{\text{novelty}}(S_i, D) = 
 \begin{cases} 
 1 & \text{if } \max(\text{sim}(S_i, S_k)) < \tau \\
 1 & \text{if } \max(\text{sim}(S_i, S_k)) > \tau \text{ and } \text{score}_{\text{contentRelevance}}(S_i, D) > \text{score}_{\text{contentRelevance}}(S_l, D) \\
 1 - \max(\text{sim}(S_i, S_k)) & \text{otherwise}
 \end{cases}
-$$
+```
 
 Where:
-- $ \text{sim}(S_i, S_k) $ indicates the similarity between sentence $ S_i $ and other sentences in cluster $ D $, calculated as:
+- $\text{sim}(S_i, S_k)$ indicates the similarity between sentence $S_i$ and other sentences in cluster $D$, calculated as:
 
-$$
+```math
 \text{sim}(S_i, S_k) = \frac{\vec{S_{D_i}} \cdot \vec{S_{D_k}}}{||\vec{S_{D_i}}|| \cdot ||\vec{S_{D_k}}||}
-$$
+```
 
-- $ l $ is the index of the sentence most similar to $ S_i $ in cluster $ D $.
+- $l$ is the index of the sentence most similar to $S_i$ in cluster $D$.
 
 #### 3. Sentence Position Score
 
-The position score for a sentence $ S_{d_i} $ in a document $ d $ is:
+The position score for a sentence $S_{d_i}$ in a document $d$ is:
 
-$$
+```math
 \text{score}_{\text{position}}(S_{d_i}) = \max\left(0.5, \exp\left(\frac{-p(S_{d_i})}{3\sqrt{M_d}}\right)\right)
-$$
+```
 
 Where:
-- $ p(S_{d_i}) $ is the position of sentence $ S $ in document $ d $, starting from 1.
-- $ M_d $ is the total number of sentences in document $ d $.
+- $p(S_{d_i})$ is the position of sentence $S$ in document $d$, starting from 1.
+- $M_d$ is the total number of sentences in document $d$.
 
-The final score for a sentence $ S_i $ is the sum of the three scores:
+The final score for a sentence $S_i$ is the sum of the three scores:
 
-$$
+```math
 \text{score}(S_i, D) = \alpha \cdot \text{score}_{\text{contentRelevance}}(S_i, D) + \beta \cdot \text{score}_{\text{novelty}}(S_i, D) + \gamma \cdot \text{score}_{\text{position}}(S_i)
-$$
+```
 
 Subject to:
-$$
+```math
 \alpha + \beta + \gamma = 1
-$$
+```
 
 
 ## Results
 
-The results of both embeddings, when compared to the lead baseline (i.e., selecting the first $ m $ sentences as the summary), are displayed in the tables below. These results are derived from subsets of the [CNN/DailyMail](https://huggingface.co/datasets/cnn_dailymail) and [PubMed](https://huggingface.co/datasets/pubmed) datasets. The [rouge](https://huggingface.co/spaces/evaluate-metric/rouge) metric from `evaluate` was used, which tends to yield slightly lower scores than `pyrouge` -- in my experience. After tokenizing the texts into sentences using `spacy`, the average summary length, in terms of the number of sentences, is $ m=3 $ for the former dataset and $ m=8 $ for the latter.
+The results of both embeddings, when compared to the lead baseline (i.e., selecting the first $ m $ sentences as the summary), are displayed in the tables below. These results are derived from subsets of the [CNN/DailyMail](https://huggingface.co/datasets/cnn_dailymail) and [PubMed](https://huggingface.co/datasets/pubmed) datasets. The [rouge](https://huggingface.co/spaces/evaluate-metric/rouge) metric from `evaluate` was used, which tends to yield slightly lower scores than `pyrouge` -- in my experience. After tokenizing the texts into sentences using `spacy`, the average summary length, in terms of the number of sentences, is $m=3$ for the former dataset and $m=8$ for the latter.
 
 The transformer-based embeddings generally outperform the compression-based embeddings across all metrics. However, the latter are faster to compute, making them a suitable choice for larger datasets. It's noteworthy that the lead baseline performs better on the news dataset, where initial sentences are typically more informative than those in the article's middle. Adjusting hyperparameters for scoring and using larger dataset subsets could produce more robust results.
 
