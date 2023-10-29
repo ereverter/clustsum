@@ -1,0 +1,6 @@
+datasets==2.14.6
+evaluate==0.4.1
+spacy==3.7.2
+torch==2.1.0
+tqdm==4.66.1
+transformers==4.34.1
