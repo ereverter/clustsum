@@ -125,4 +125,4 @@ python clustsum/eval.py \
     --gamma 0.2
 ```
 
-To play around with single samples, take a look at the [`playground.ipynb`](https://github.com/eReverter/clustsum/blob/main/playground.ipynb) notebook.
+To play around with single samples, take a look at the [`playground.ipynb`](https://github.com/ereverter/clustsum/blob/main/playground.ipynb) notebook.
